@@ -1,0 +1,3 @@
+META-INF/services/javax.annotation.processing.Processor
+me/sombrero/MagicMojaProcessor.class
+me/sombrero/Magic.class

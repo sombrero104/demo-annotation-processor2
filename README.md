@@ -40,4 +40,9 @@ AutoService, Javapoet
 #### [ 단점 ]
 현재로서는 public한 API가 없다.<br/>
 롬복처럼 약간의 해킹을 통해 기존 코드를 고치는 방법밖에 없다.
+
+#### [ 오버라이드 애노테이션에서의 애노테이션 프로세서 사용 ]
+https://stackoverflow.com/questions/18189980/how-do-annotations-like-override- work-internally-in-java/18202623
+
 <br/><br/><br/>
+

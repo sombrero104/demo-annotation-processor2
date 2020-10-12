@@ -1,20 +1,24 @@
 
-
+<br/>
 ## < 더 자바, 코드를 조작하는 다양한 방법 >
 <br/>
 
 ### 1. JVM 구조
+<br/>
 
 ### 2. 바이트 코드 조작
 ASM(비지터 패턴) 또는 Javassist, ByteBuddy(권장, ASM 사용, API 사용 편리)
+<br/>
 
 ### 3. 리플렉션 API
 클래스 정보 참조(메소드, 필드, 생성자, 제네릭정보, …) <br/>
 리플렉션 API를 다른 기술과도 같이 사용. <br/>
 private 필드, 메소드도 접근 가능. 대신 성능에 이슈가 있을 수 있음. 
+<br/>
 
 ### 4. 다이나믹 프록시 기법
 자바의 Proxy(리플렉션의 일환), CGlib, ByteBuddy(권장)
+<br/>
 
 ### 5. 애노테이션 프로세서
 AbstractProcessor, Processor, Filer<br/>

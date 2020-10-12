@@ -1,17 +1,20 @@
 package me.sombrero;
 
+
 import com.google.auto.service.AutoService;
-import com.sun.source.tree.Tree;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -36,14 +39,16 @@ import java.util.Set;
  * 그리고 다시 mvn clean install 한 후 압축된 jar 파일을 열어보면
  * 위에서 만들었던 매니페스트 파일과 똑같은 파일이 자동으로 생성되어 있는 것을 확인할 수 있다.
  */
-@AutoService(Processor.class)
+@AutoService(Processor.class) // 현재 이 프로세서를 등록하기 위해 매니페스트 파일을 자동으로 생성해 주는 라이브러리.
 public class MagicMojaProcessor extends AbstractProcessor {
 
+    // 지원하는 애노테이션 종류
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         return Set.of(Magic.class.getName());
     }
 
+    // 지원하는 자바 버전 (현재는 최근 버전의 자바 지원하도록 설정.)
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.latestSupported();
@@ -57,13 +62,46 @@ public class MagicMojaProcessor extends AbstractProcessor {
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        // @Magic 애노테이션이 붙어있는 엘리먼트들을 불러온다.
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Magic.class);
         for(Element element : elements) {
             Name elementName = element.getSimpleName();
+            // @Magic 애노테이션이 붙어있는 엘리먼트가 인터페이스가 아닐 경우 메세지 처리.
             if(element.getKind() != ElementKind.INTERFACE) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Magic annotation can not be used on " + elementName);
             } else {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Processing " + elementName);
+            }
+
+            /**
+             * 롬북처럼 해당 애노테이션 사용 시 새로운 소스코드를 생성해내기.
+             * JavaPoet 라이브러리를 사용. JavaPoet 의존성을 추가해준다.
+             */
+            TypeElement typeElement = (TypeElement)element;
+            ClassName className = ClassName.get(typeElement);
+
+            // 토끼를 꺼내는.. pullOut이라는 이름으로 메소드를 만들어보자.
+            MethodSpec pullOut = MethodSpec.methodBuilder("pullOut")
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(String.class)
+                    .addStatement("return $S", "Rabbit!!")
+                    .build();
+
+            // MagicMoja라는 클래스를 만들고 위에서 만든 메소드를 추가한다.
+            TypeSpec magicMoja = TypeSpec.classBuilder("Magic" + elementName)
+                    .addModifiers(Modifier.PUBLIC)
+                     .addSuperinterface(className)
+                    .addMethod(pullOut)
+                    .build();
+
+            // 실제 소스파일 만들기.
+            Filer filer = processingEnv.getFiler();
+            try {
+                JavaFile.builder(className.packageName(), magicMoja)
+                        .build()
+                        .writeTo(filer); // 위에서 만든 클래스 파일을 write 한다.
+            } catch (IOException e) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "FATAL ERROR: " + e);
             }
         }
         return true;

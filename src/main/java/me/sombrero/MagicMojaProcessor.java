@@ -23,6 +23,7 @@ import java.util.Set;
  * resource 디렉토리 밑에 META-INF/services 디렉토리를 생성해 준다.
  * 그리고 Processor의 패키지인 javax.annotation.processing.Processor 파일을 생성하고,
  * 내가 만든 프로세서의 패키지명을 입력해준다. (me.sombrero.MagicMojaProcessor)
+ *      => 사실 이 부분은 안해도 컴파일하면 @AutoService(Processor.class)가 자동으로 파일을 만들어준다.
  * 그리고 mvn clean install 하면 해당 매니페스트 파일을 읽는 시점에는 MagicMojaProcessor가 컴파일되어 있지 않으므로,
  * 잠시 매니페스트 파일의 me.sombrero.MagicMojaProcessor 부분을 주석처리한 다음 mvn clean install을 실행.
  * 그리고 다시 주석을 풀고 mvn install 을 실행한다. 로
@@ -39,6 +40,10 @@ import java.util.Set;
  * 그리고 다시 mvn clean install 한 후 압축된 jar 파일을 열어보면
  * 위에서 만들었던 매니페스트 파일과 똑같은 파일이 자동으로 생성되어 있는 것을 확인할 수 있다.
  */
+
+// @AutoService(Processor.class)를 붙이고 컴파일하면
+// 자동으로 target의 resources/META-INF/services 밑에 파일을 만들어준다.
+// (참고로 src의 resources/META-INF/services 밑에 있는 파일은 내가 그냥 만들어둔 것..)
 @AutoService(Processor.class) // 현재 이 프로세서를 등록하기 위해 매니페스트 파일을 자동으로 생성해 주는 라이브러리.
 public class MagicMojaProcessor extends AbstractProcessor {
 
